@@ -1,0 +1,17 @@
+# Всі скомпільовані .class файли
+*.class
+
+# Папка збірки Maven
+target/
+
+# Службові файли та папки IDE (IntelliJ IDEA, Eclipse, VS Code)
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Службові файли операційної системи
+.DS_Store
+Thumbs.db

@@ -2,7 +2,7 @@ import java.util.Objects;
 
 /**
  * Клас, що описує працівника підприємства.
- * Містить атрибути: ПІБ, посаду, зарплату та стаж роботи.
+ * Містить атрибути: ПІБ, посаду, зарплату та стаж роботи з перевіркою коректності.
  */
 public class Employee {
     private String name;
@@ -19,10 +19,10 @@ public class Employee {
      * @param experienceYears Стаж роботи (років)
      */
     public Employee(String name, String position, double salary, int experienceYears) {
-        this.name = name;
-        this.position = position;
-        this.salary = salary;
-        this.experienceYears = experienceYears;
+        setName(name);
+        setPosition(position);
+        setSalary(salary);
+        setExperienceYears(experienceYears);
     }
 
     public String getName() {
@@ -30,7 +30,10 @@ public class Employee {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new InvalidEmployeeDataException("ПІБ працівника не може бути порожнім.");
+        }
+        this.name = name.trim();
     }
 
     public String getPosition() {
@@ -38,7 +41,10 @@ public class Employee {
     }
 
     public void setPosition(String position) {
-        this.position = position;
+        if (position == null || position.trim().isEmpty()) {
+            throw new InvalidEmployeeDataException("Посада не може бути порожньою.");
+        }
+        this.position = position.trim();
     }
 
     public double getSalary() {
@@ -46,6 +52,9 @@ public class Employee {
     }
 
     public void setSalary(double salary) {
+        if (salary <= 0) {
+            throw new InvalidEmployeeDataException("Заробітна плата повинна бути більшою за 0.");
+        }
         this.salary = salary;
     }
 
@@ -54,6 +63,9 @@ public class Employee {
     }
 
     public void setExperienceYears(int experienceYears) {
+        if (experienceYears < 0) {
+            throw new InvalidEmployeeDataException("Стаж роботи не може бути від'ємним.");
+        }
         this.experienceYears = experienceYears;
     }
 

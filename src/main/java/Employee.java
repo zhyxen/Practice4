@@ -1,14 +1,28 @@
 import java.util.Objects;
 
+/**
+ * Клас, що описує працівника підприємства.
+ * Містить атрибути: ПІБ, посаду, зарплату та стаж роботи.
+ */
 public class Employee {
     private String name;
     private String position;
     private double salary;
+    private int experienceYears;
 
-    public Employee(String name, String position, double salary) {
+    /**
+     * Конструктор класу Employee.
+     *
+     * @param name            ПІБ працівника
+     * @param position        Посада працівника
+     * @param salary          Заробітна плата (грн)
+     * @param experienceYears Стаж роботи (років)
+     */
+    public Employee(String name, String position, double salary, int experienceYears) {
         this.name = name;
         this.position = position;
         this.salary = salary;
+        this.experienceYears = experienceYears;
     }
 
     public String getName() {
@@ -35,9 +49,18 @@ public class Employee {
         this.salary = salary;
     }
 
+    public int getExperienceYears() {
+        return experienceYears;
+    }
+
+    public void setExperienceYears(int experienceYears) {
+        this.experienceYears = experienceYears;
+    }
+
     @Override
     public String toString() {
-        return "Працівник: " + name + " | Посада: " + position + " | Зарплата: " + salary + " грн";
+        return String.format("Працівник: %s | Посада: %s | Зарплата: %.2f грн | Стаж: %d років",
+                name, position, salary, experienceYears);
     }
 
     @Override
@@ -46,7 +69,8 @@ public class Employee {
         if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
         return Double.compare(employee.salary, salary) == 0 &&
-               Objects.equals(name, employee.name) &&
-               Objects.equals(position, employee.position);
+                experienceYears == employee.experienceYears &&
+                Objects.equals(name, employee.name) &&
+                Objects.equals(position, employee.position);
     }
 }

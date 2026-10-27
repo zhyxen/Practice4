@@ -1,12 +1,10 @@
 import java.util.Objects;
 
 /**
- * Клас, що описує працівника підприємства.
- * Містить атрибути: ПІБ, посаду, зарплату, стаж роботи, відділ та статичний лічильник об'єктів.
+ * Базовий клас, що описує працівника підприємства.
+ * Слугує основою для ієрархії класів (поліморфізм).
  */
 public class Employee {
-    private static int count = 0;
-
     private String name;
     private String position;
     private double salary;
@@ -14,7 +12,7 @@ public class Employee {
     private Department department;
 
     /**
-     * Конструктор класу Employee.
+     * Конструктор базового класу Employee.
      *
      * @param name            ПІБ працівника
      * @param position        Посада працівника
@@ -29,7 +27,6 @@ public class Employee {
         setSalary(salary);
         setExperienceYears(experienceYears);
         setDepartment(department);
-        count++;
     }
 
     /**
@@ -47,11 +44,6 @@ public class Employee {
         this.salary = other.salary;
         this.experienceYears = other.experienceYears;
         this.department = other.department;
-        count++;
-    }
-
-    public static int getCount() {
-        return count;
     }
 
     public String getName() {

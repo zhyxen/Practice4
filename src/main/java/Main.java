@@ -1,36 +1,38 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
- * Головний клас-драйвер із підтримкою агрегації, enum та статичних лічильників.
+ * Головний клас-драйвер із підтримкою успадкування, поліморфізму та колекції ArrayList.
  */
 public class Main {
     private static final Scanner scanner = new Scanner(System.in, "UTF-8");
-    private static final Company company = new Company("Tech Solutions");
+    private static final List<Employee> employees = new ArrayList<>();
 
     public static void main(String[] args) {
         boolean running = true;
         while (running) {
-            System.out.println("\n===== МЕНЮ УПРАВЛІННЯ КОМПАНІЄЮ: " + company.getName() + " =====");
-            System.out.println("1. Створити нового працівника");
-            System.out.println("2. Створити копію працівника (конструктор копіювання)");
-            System.out.println("3. Вивести список усіх працівників компанії");
-            System.out.println("4. Показати кількість створених об'єктів (статичний лічильник)");
+            System.out.println("\n===== МЕНЮ УПРАВЛІННЯ ПРАЦІВНИКАМИ (ПОЛІМОРФІЗМ & ARRAYLIST) =====");
+            System.out.println("1. Додати базового працівника (Employee)");
+            System.out.println("2. Додати контрактного працівника (ContractEmployee)");
+            System.out.println("3. Додати штатного працівника (FullTimeEmployee)");
+            System.out.println("4. Вивести весь список працівників (демонстрація поліморфізму)");
             System.out.println("5. Завершити роботу");
             System.out.print("Оберіть пункт меню (1-5): ");
 
             String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1":
-                    createEmployee();
+                    createBaseEmployee();
                     break;
                 case "2":
-                    copyEmployee();
+                    createContractEmployee();
                     break;
                 case "3":
-                    displayEmployees();
+                    createFullTimeEmployee();
                     break;
                 case "4":
-                    System.out.println("\n[СТАТИКА] Всього створено об'єктів Employee: " + Employee.getCount());
+                    displayEmployees();
                     break;
                 case "5":
                     running = false;
@@ -42,8 +44,8 @@ public class Main {
         }
     }
 
-    private static void createEmployee() {
-        System.out.println("\n--- Створення нового працівника ---");
+    private static void createBaseEmployee() {
+        System.out.println("\n--- Додавання базового працівника ---");
         String name = readString("Введіть ПІБ: ");
         String position = readString("Введіть посаду: ");
         double salary = readDouble("Введіть заробітну плату (грн): ");
@@ -52,40 +54,56 @@ public class Main {
 
         try {
             Employee emp = new Employee(name, position, salary, experience, dept);
-            company.addEmployee(emp);
-            System.out.println("Працівника успішно додано до компанії!");
+            employees.add(emp);
+            System.out.println("Базового працівника успішно додано до колекції ArrayList!");
         } catch (InvalidEmployeeDataException e) {
-            System.out.println("Помилка створення об'єкта: " + e.getMessage());
+            System.out.println("Помилка: " + e.getMessage());
         }
     }
 
-    private static void copyEmployee() {
-        if (company.getEmployeeCount() == 0) {
-            System.out.println("\nСписок порожній. Спочатку додайте хоча б одного працівника.");
-            return;
+    private static void createContractEmployee() {
+        System.out.println("\n--- Додавання контрактного працівника ---");
+        String name = readString("Введіть ПІБ: ");
+        String position = readString("Введіть посаду: ");
+        double salary = readDouble("Введіть заробітну плату (грн): ");
+        int experience = readInt("Введіть стаж роботи (років): ");
+        Department dept = chooseDepartment();
+        int contractMonths = readInt("Введіть тривалість контракту (місяців): ");
+
+        try {
+            ContractEmployee emp = new ContractEmployee(name, position, salary, experience, dept, contractMonths);
+            employees.add(emp);
+            System.out.println("Контрактного працівника успішно додано до колекції ArrayList!");
+        } catch (InvalidEmployeeDataException e) {
+            System.out.println("Помилка: " + e.getMessage());
         }
+    }
 
-        displayEmployees();
-        int index = readInt("Введіть номер працівника для копіювання: ") - 1;
+    private static void createFullTimeEmployee() {
+        System.out.println("\n--- Додавання штатного працівника ---");
+        String name = readString("Введіть ПІБ: ");
+        String position = readString("Введіть посаду: ");
+        double salary = readDouble("Введіть заробітну плату (грн): ");
+        int experience = readInt("Введіть стаж роботи (років): ");
+        Department dept = chooseDepartment();
+        double bonus = readDouble("Введіть розмір річної премії (грн): ");
 
-        if (index >= 0 && index < company.getEmployeeCount()) {
-            Employee original = company.getEmployees().get(index);
-            Employee copy = new Employee(original);
-            copy.setName(original.getName() + " (Копія)");
-            company.addEmployee(copy);
-            System.out.println("Успішно створено копію об'єкта за допомогою конструктора копіювання!");
-        } else {
-            System.out.println("Некоректний номер у списку.");
+        try {
+            FullTimeEmployee emp = new FullTimeEmployee(name, position, salary, experience, dept, bonus);
+            employees.add(emp);
+            System.out.println("Штатного працівника успішно додано до колекції ArrayList!");
+        } catch (InvalidEmployeeDataException e) {
+            System.out.println("Помилка: " + e.getMessage());
         }
     }
 
     private static void displayEmployees() {
-        System.out.println("\n================ СПИСОК ПРАЦІВНИКІВ КОМПАНІЇ ================");
-        if (company.getEmployeeCount() == 0) {
+        System.out.println("\n================ СПИСОК ПРАЦІВНИКІВ (ПОЛІМОРФНЕ ВИВЕДЕННЯ) ================");
+        if (employees.isEmpty()) {
             System.out.println("Список порожній.");
         } else {
-            for (int i = 0; i < company.getEmployees().size(); i++) {
-                System.out.println((i + 1) + ". " + company.getEmployees().get(i));
+            for (int i = 0; i < employees.size(); i++) {
+                System.out.println((i + 1) + ". " + employees.get(i));
             }
         }
     }

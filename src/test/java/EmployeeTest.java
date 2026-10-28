@@ -2,7 +2,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Клас автотестів для перевірки успадкування, поліморфізму та нових похідних класів.
+ * Клас автотестів для перевірки розширеної 5-класової ієрархії.
  */
 class EmployeeTest {
 
@@ -25,9 +25,20 @@ class EmployeeTest {
     }
 
     @Test
-    void shouldDemonstratePolymorphismWithBaseReference() {
-        Employee emp = new ContractEmployee("Тарас Григорович", "Директор", 80000.0, 10, Department.MANAGEMENT, 24);
+    void shouldCreateInternEmployeeAndVerifyMentor() {
+        InternEmployee intern = new InternEmployee("Іван Бойко", "Молодший тестувальник", 15000.0, 0, Department.IT, "Володимир Шевченко");
 
-        assertTrue(emp.toString().contains("[КОНТРАКТНИК]"));
+        assertEquals("Іван Бойко", intern.getName());
+        assertEquals("Володимир Шевченко", intern.getMentorName());
+        assertTrue(intern.toString().contains("[СТАЖЕР]"));
+    }
+
+    @Test
+    void shouldCreateExecutiveEmployeeAndVerifyStockOptions() {
+        ExecutiveEmployee exec = new ExecutiveEmployee("Олена Коваль", "Технічний директор", 120000.0, 12, Department.IT, 500);
+
+        assertEquals("Олена Коваль", exec.getName());
+        assertEquals(500, exec.getStockOptionsCount());
+        assertTrue(exec.toString().contains("[КЕРІВНИК]"));
     }
 }

@@ -8,18 +8,13 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * Клас для збереження та завантаження об'єктів ієрархії Employee з/у текстовий файл.
+ * Класс для сохранения и загрузки объектов иерархии Employee из/в текстовый файл.
  */
 public class FileManager {
 
-    /**
-     * Зчитує список працівників з текстового файлу.
-     *
-     * @param fileName Шлях до файлу
-     * @return Список зчитаних об'єктів
-     */
     public static List<Employee> loadFromFile(String fileName) {
         List<Employee> employees = new ArrayList<>();
         File file = new File(fileName);
@@ -59,12 +54,6 @@ public class FileManager {
         return employees;
     }
 
-    /**
-     * Записує список працівників у текстовий файл.
-     *
-     * @param employees Список об'єктів для збереження
-     * @param fileName  Шлях до файлу
-     */
     public static void saveToFile(List<Employee> employees, String fileName) {
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8))) {
@@ -91,7 +80,7 @@ public class FileManager {
         String type = parts[0].trim().toUpperCase();
         String name = parts[1].trim();
         String position = parts[2].trim();
-        double salary = Double.parseDouble(parts[3].trim());
+        double salary = Double.parseDouble(parts[3].trim().replace(',', '.'));
         int experience = Integer.parseInt(parts[4].trim());
         Department department = Department.valueOf(parts[5].trim().toUpperCase());
 
@@ -104,7 +93,7 @@ public class FileManager {
                 return new ContractEmployee(name, position, salary, experience, department, months);
             case "FULLTIME":
                 if (parts.length < 7) throw new IllegalArgumentException("Відсутній розмір премії");
-                double bonus = Double.parseDouble(parts[6].trim());
+                double bonus = Double.parseDouble(parts[6].trim().replace(',', '.'));
                 return new FullTimeEmployee(name, position, salary, experience, department, bonus);
             case "INTERN":
                 if (parts.length < 7) throw new IllegalArgumentException("Відсутній ПІБ ментора");
@@ -122,22 +111,22 @@ public class FileManager {
     private static String formatEmployeeToLine(Employee emp) {
         if (emp instanceof ContractEmployee) {
             ContractEmployee c = (ContractEmployee) emp;
-            return String.format("CONTRACT;%s;%s;%.2f;%d;%s;%d",
+            return String.format(Locale.US, "CONTRACT;%s;%s;%.2f;%d;%s;%d",
                     c.getName(), c.getPosition(), c.getSalary(), c.getExperienceYears(), c.getDepartment().name(), c.getContractMonths());
         } else if (emp instanceof FullTimeEmployee) {
             FullTimeEmployee f = (FullTimeEmployee) emp;
-            return String.format("FULLTIME;%s;%s;%.2f;%d;%s;%.2f",
+            return String.format(Locale.US, "FULLTIME;%s;%s;%.2f;%d;%s;%.2f",
                     f.getName(), f.getPosition(), f.getSalary(), f.getExperienceYears(), f.getDepartment().name(), f.getAnnualBonus());
         } else if (emp instanceof InternEmployee) {
             InternEmployee i = (InternEmployee) emp;
-            return String.format("INTERN;%s;%s;%.2f;%d;%s;%s",
+            return String.format(Locale.US, "INTERN;%s;%s;%.2f;%d;%s;%s",
                     i.getName(), i.getPosition(), i.getSalary(), i.getExperienceYears(), i.getDepartment().name(), i.getMentorName());
         } else if (emp instanceof ExecutiveEmployee) {
             ExecutiveEmployee e = (ExecutiveEmployee) emp;
-            return String.format("EXECUTIVE;%s;%s;%.2f;%d;%s;%d",
+            return String.format(Locale.US, "EXECUTIVE;%s;%s;%.2f;%d;%s;%d",
                     e.getName(), e.getPosition(), e.getSalary(), e.getExperienceYears(), e.getDepartment().name(), e.getStockOptionsCount());
         } else if (emp != null) {
-            return String.format("EMPLOYEE;%s;%s;%.2f;%d;%s",
+            return String.format(Locale.US, "EMPLOYEE;%s;%s;%.2f;%d;%s",
                     emp.getName(), emp.getPosition(), emp.getSalary(), emp.getExperienceYears(), emp.getDepartment().name());
         }
         return null;

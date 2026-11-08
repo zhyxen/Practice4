@@ -3,16 +3,21 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Головний клас-драйвер для ПР№8 з підтримкою розширеної 5-класової ієрархії.
+ * Головний клас-драйвер для ПР№9 із підтримкою збереження та відновлення даних з файлу.
  */
 public class Main {
+    private static final String FILE_NAME = "input.txt";
     private static final Scanner scanner = new Scanner(System.in, "UTF-8");
-    private static final List<Employee> employees = new ArrayList<>();
+    private static List<Employee> employees = new ArrayList<>();
 
     public static void main(String[] args) {
+        // Зчитуємо початкові дані з файлу при старті програми
+        System.out.println("===== ЗАВАНТАЖЕННЯ ДАНИХ З ФАЙЛУ =====");
+        employees = FileManager.loadFromFile(FILE_NAME);
+
         boolean running = true;
         while (running) {
-            System.out.println("\n===== ГОЛОВНЕ МЕНЮ (ПРАКТИЧНА №8) =====");
+            System.out.println("\n===== ГОЛОВНЕ МЕНЮ (ПРАКТИЧНА №9) =====");
             System.out.println("1. Створити новий об’єкт");
             System.out.println("2. Вивести інформацію про всі об’єкти");
             System.out.println("3. Завершити роботу програми");
@@ -28,6 +33,8 @@ public class Main {
                     break;
                 case "3":
                     running = false;
+                    System.out.println("\n===== ЗБЕРЕЖЕННЯ ДАНИХ У ФАЙЛ =====");
+                    FileManager.saveToFile(employees, FILE_NAME);
                     System.out.println("Роботу програми завершено.");
                     break;
                 default:
@@ -82,7 +89,7 @@ public class Main {
         try {
             Employee emp = new Employee(name, position, salary, experience, dept);
             employees.add(emp);
-            System.out.println("Базового працівника успішно додано до колекції ArrayList!");
+            System.out.println("Базового працівника успішно додано до колекції!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
@@ -100,7 +107,7 @@ public class Main {
         try {
             ContractEmployee emp = new ContractEmployee(name, position, salary, experience, dept, contractMonths);
             employees.add(emp);
-            System.out.println("Контрактного працівника успішно додано до колекції ArrayList!");
+            System.out.println("Контрактного працівника успішно додано до колекції!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
@@ -118,7 +125,7 @@ public class Main {
         try {
             FullTimeEmployee emp = new FullTimeEmployee(name, position, salary, experience, dept, bonus);
             employees.add(emp);
-            System.out.println("Штатного працівника успішно додано до колекції ArrayList!");
+            System.out.println("Штатного працівника успішно додано до колекції!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
@@ -136,7 +143,7 @@ public class Main {
         try {
             InternEmployee emp = new InternEmployee(name, position, salary, experience, dept, mentor);
             employees.add(emp);
-            System.out.println("Стажера успішно додано до колекції ArrayList!");
+            System.out.println("Стажера успішно додано до колекції!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
@@ -154,7 +161,7 @@ public class Main {
         try {
             ExecutiveEmployee emp = new ExecutiveEmployee(name, position, salary, experience, dept, stockOptions);
             employees.add(emp);
-            System.out.println("Керівника успішно додано до колекції ArrayList!");
+            System.out.println("Керівника успішно додано до колекції!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }

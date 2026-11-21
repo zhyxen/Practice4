@@ -1,25 +1,24 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 /**
- * Головний клас-драйвер для ПР№10 із підтримкою пошуку в колекції та роботи з файлом.
+ * Головний клас-драйвер для ПР№11 із використанням класу-контейнера Company (агрегація).
  */
 public class Main {
     private static final String FILE_NAME = "input.txt";
     private static final Scanner scanner = new Scanner(System.in, "UTF-8");
-    private static List<Employee> employees = new ArrayList<>();
+    private static Company company;
 
     public static void main(String[] args) {
-        System.out.println("===== ЗАВАНТАЖЕННЯ ДАНИХ З ФАЙЛУ =====");
-        employees = FileManager.loadFromFile(FILE_NAME);
+        System.out.println("===== ЗАВАНТАЖЕННЯ ДАНИХ КОМПАНІЇ З ФАЙЛУ =====");
+        company = FileManager.loadCompanyFromFile(FILE_NAME);
 
         boolean running = true;
         while (running) {
-            System.out.println("\n===== ГОЛОВНЕ МЕНЮ (ПРАКТИЧНА №10) =====");
-            System.out.println("1. Пошук об’єкта");
-            System.out.println("2. Створити новий об’єкт");
-            System.out.println("3. Вивести інформацію про всі об’єкти");
+            System.out.println("\n===== ГОЛОВНЕ МЕНЮ (ПРАКТИЧНА №11: " + company.getName() + ") =====");
+            System.out.println("1. Пошук об’єкта в компанії");
+            System.out.println("2. Додати працівника (з урахуванням кількості)");
+            System.out.println("3. Вивести інформацію про компанію та всіх працівників");
             System.out.println("4. Завершити роботу програми");
             System.out.print("Оберіть опцію (1-4): ");
 
@@ -32,12 +31,12 @@ public class Main {
                     createNewObjectMenu();
                     break;
                 case "3":
-                    displayEmployees();
+                    displayCompanyInfo();
                     break;
                 case "4":
                     running = false;
-                    System.out.println("\n===== ЗБЕРЕЖЕННЯ ДАНИХ У ФАЙЛ =====");
-                    FileManager.saveToFile(employees, FILE_NAME);
+                    System.out.println("\n===== ЗБЕРЕЖЕННЯ ДАНИХ КОМПАНІЇ У ФАЙЛ =====");
+                    FileManager.saveCompanyToFile(company, FILE_NAME);
                     System.out.println("Роботу програми завершено.");
                     break;
                 default:
@@ -46,12 +45,12 @@ public class Main {
         }
     }
 
-    // ================= ПІДМЕНЮ ТА МЕТОДИ ПОШУКУ (ПРАКТИЧНА №10) =================
+    // ================= ПІДМЕНЮ ПОШУКУ ЧЕРЕЗ КЛАС COMPANY =================
 
     private static void searchMenu() {
         boolean inSearch = true;
         while (inSearch) {
-            System.out.println("\n--- ПІДМЕНЮ ПОШУКУ ОБ'ЄКТІВ ---");
+            System.out.println("\n--- ПІДМЕНЮ ПОШУКУ В КОМПАНІЇ «" + company.getName() + "» ---");
             System.out.println("1. Пошук за ПІБ (частковий або повний збіг)");
             System.out.println("2. Пошук за відділом");
             System.out.println("3. Пошук за мінімальною заробітною платою");
@@ -62,17 +61,17 @@ public class Main {
             switch (choice) {
                 case "1":
                     String nameQuery = readString("Введіть ПІБ або частину імені для пошуку: ");
-                    List<Employee> byName = searchByName(nameQuery);
+                    List<Employee> byName = company.searchByName(nameQuery);
                     printSearchResults(byName);
                     break;
                 case "2":
                     Department targetDept = chooseDepartment();
-                    List<Employee> byDept = searchByDepartment(targetDept);
+                    List<Employee> byDept = company.searchByDepartment(targetDept);
                     printSearchResults(byDept);
                     break;
                 case "3":
                     double minSalary = readDouble("Введіть мінімальну заробітну плату (грн): ");
-                    List<Employee> bySalary = searchByMinSalary(minSalary);
+                    List<Employee> bySalary = company.searchByMinSalary(minSalary);
                     printSearchResults(bySalary);
                     break;
                 case "0":
@@ -83,40 +82,6 @@ public class Main {
                     System.out.println("Помилка: Некоректний вибір критерію пошуку.");
             }
         }
-    }
-
-    private static List<Employee> searchByName(String query) {
-        List<Employee> results = new ArrayList<>();
-        String lowerQuery = query.toLowerCase();
-        for (int i = 0; i < employees.size(); i++) {
-            Employee emp = employees.get(i);
-            if (emp.getName().toLowerCase().contains(lowerQuery)) {
-                results.add(emp);
-            }
-        }
-        return results;
-    }
-
-    private static List<Employee> searchByDepartment(Department targetDept) {
-        List<Employee> results = new ArrayList<>();
-        for (int i = 0; i < employees.size(); i++) {
-            Employee emp = employees.get(i);
-            if (emp.getDepartment() == targetDept) {
-                results.add(emp);
-            }
-        }
-        return results;
-    }
-
-    private static List<Employee> searchByMinSalary(double minSalary) {
-        List<Employee> results = new ArrayList<>();
-        for (int i = 0; i < employees.size(); i++) {
-            Employee emp = employees.get(i);
-            if (emp.getSalary() >= minSalary) {
-                results.add(emp);
-            }
-        }
-        return results;
     }
 
     private static void printSearchResults(List<Employee> results) {
@@ -130,10 +95,10 @@ public class Main {
         }
     }
 
-    // ================= СТВОРЕННЯ ОБ'ЄКТІВ ТА ВИВЕДЕННЯ =================
+    // ================= ДОДАВАННЯ ПРАЦІВНИКІВ ЧЕРЕЗ addNewEmployee =================
 
     private static void createNewObjectMenu() {
-        System.out.println("\n--- ОБРАННЯ ТИПУ НОВОГО ОБ'ЄКТА ---");
+        System.out.println("\n--- ОБРАННЯ ТИПУ НОВОГО ПРАЦІВНИКА ---");
         System.out.println("1. Базовий працівник (Employee)");
         System.out.println("2. Контрактний працівник (ContractEmployee)");
         System.out.println("3. Штатний працівник (FullTimeEmployee)");
@@ -168,101 +133,111 @@ public class Main {
     }
 
     private static void createBaseEmployee() {
-        System.out.println("\n--- Створення базового працівника ---");
+        System.out.println("\n--- Додавання базового працівника ---");
         String name = readString("Введіть ПІБ: ");
         String position = readString("Введіть посаду: ");
         double salary = readDouble("Введіть заробітну плату (грн): ");
         int experience = readInt("Введіть стаж роботи (років): ");
         Department dept = chooseDepartment();
+        int quantity = readPositiveInt("Введіть кількість (штатних одиниць): ");
 
         try {
             Employee emp = new Employee(name, position, salary, experience, dept);
-            employees.add(emp);
-            System.out.println("Базового працівника успішно додано до колекції!");
+            company.addNewEmployee(emp, quantity);
+            System.out.println("Дані успішно додано/оновлено у компанії!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
     }
 
     private static void createContractEmployee() {
-        System.out.println("\n--- Створення контрактного працівника ---");
+        System.out.println("\n--- Додавання контрактного працівника ---");
         String name = readString("Введіть ПІБ: ");
         String position = readString("Введіть посаду: ");
         double salary = readDouble("Введіть заробітну плату (грн): ");
         int experience = readInt("Введіть стаж роботи (років): ");
         Department dept = chooseDepartment();
         int contractMonths = readInt("Введіть тривалість контракту (місяців): ");
+        int quantity = readPositiveInt("Введіть кількість (штатних одиниць): ");
 
         try {
             ContractEmployee emp = new ContractEmployee(name, position, salary, experience, dept, contractMonths);
-            employees.add(emp);
-            System.out.println("Контрактного працівника успішно додано до колекції!");
+            company.addNewEmployee(emp, quantity);
+            System.out.println("Дані успішно додано/оновлено у компанії!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
     }
 
     private static void createFullTimeEmployee() {
-        System.out.println("\n--- Створення штатного працівника ---");
+        System.out.println("\n--- Додавання штатного працівника ---");
         String name = readString("Введіть ПІБ: ");
         String position = readString("Введіть посаду: ");
         double salary = readDouble("Введіть заробітну плату (грн): ");
         int experience = readInt("Введіть стаж роботи (років): ");
         Department dept = chooseDepartment();
         double bonus = readDouble("Введіть розмір річної премії (грн): ");
+        int quantity = readPositiveInt("Введіть кількість (штатних одиниць): ");
 
         try {
             FullTimeEmployee emp = new FullTimeEmployee(name, position, salary, experience, dept, bonus);
-            employees.add(emp);
-            System.out.println("Штатного працівника успішно додано до колекції!");
+            company.addNewEmployee(emp, quantity);
+            System.out.println("Дані успішно додано/оновлено у компанії!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
     }
 
     private static void createInternEmployee() {
-        System.out.println("\n--- Створення стажера ---");
+        System.out.println("\n--- Додавання стажера ---");
         String name = readString("Введіть ПІБ стажера: ");
         String position = readString("Введіть посаду: ");
         double salary = readDouble("Введіть стипендію/зарплату (грн): ");
         int experience = readInt("Введіть стаж роботи (років): ");
         Department dept = chooseDepartment();
         String mentor = readString("Введіть ПІБ ментора (наставника): ");
+        int quantity = readPositiveInt("Введіть кількість (штатних одиниць): ");
 
         try {
             InternEmployee emp = new InternEmployee(name, position, salary, experience, dept, mentor);
-            employees.add(emp);
-            System.out.println("Стажера успішно додано до колекції!");
+            company.addNewEmployee(emp, quantity);
+            System.out.println("Дані успішно додано/оновлено у компанії!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
     }
 
     private static void createExecutiveEmployee() {
-        System.out.println("\n--- Створення керівника ---");
+        System.out.println("\n--- Додавання керівника ---");
         String name = readString("Введіть ПІБ керівника: ");
         String position = readString("Введіть посаду: ");
         double salary = readDouble("Введіть заробітну плату (грн): ");
         int experience = readInt("Введіть стаж роботи (років): ");
         Department dept = chooseDepartment();
         int stockOptions = readInt("Введіть кількість опціонів/акцій (шт.): ");
+        int quantity = readPositiveInt("Введіть кількість (штатних одиниць): ");
 
         try {
             ExecutiveEmployee emp = new ExecutiveEmployee(name, position, salary, experience, dept, stockOptions);
-            employees.add(emp);
-            System.out.println("Керівника успішно додано до колекції!");
+            company.addNewEmployee(emp, quantity);
+            System.out.println("Дані успішно додано/оновлено у компанії!");
         } catch (InvalidEmployeeDataException e) {
             System.out.println("Помилка: " + e.getMessage());
         }
     }
 
-    private static void displayEmployees() {
-        System.out.println("\n================ ВМІСТ КОЛЕКЦІЇ ARRAYLIST ================");
+    private static void displayCompanyInfo() {
+        System.out.println("\n================ ІНФОРМАЦІЯ ПРО КОМПАНІЮ ================");
+        System.out.println("Назва компанії: " + company.getName());
+        System.out.println("Місто / Розташування: " + company.getLocation());
+        List<Employee> employees = company.getEmployees();
+        List<Integer> quantities = company.getQuantities();
+
         if (employees.isEmpty()) {
-            System.out.println("Колекція порожня.");
+            System.out.println("У компанії ще немає працівників.");
         } else {
             for (int i = 0; i < employees.size(); i++) {
-                System.out.println((i + 1) + ". " + employees.get(i));
+                System.out.println((i + 1) + ". " + employees.get(i) + " | Кількість: " + quantities.get(i) + " шт.");
             }
         }
     }
@@ -312,6 +287,14 @@ public class Main {
             } catch (NumberFormatException e) {
                 System.out.println("Помилка: Введіть ціле число.");
             }
+        }
+    }
+
+    private static int readPositiveInt(String prompt) {
+        while (true) {
+            int val = readInt(prompt);
+            if (val > 0) return val;
+            System.out.println("Помилка: Кількість має бути більшою за 0.");
         }
     }
 }
